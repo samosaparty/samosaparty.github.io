@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0f172a; /* slate-900 */
+    --foreground: #f8fafc; /* slate-50 */
+    --card: #1e293b; /* slate-800 */
+    --card-foreground: #f8fafc;
+    --popover: #1e293b;
+    --popover-foreground: #f8fafc;
+    --primary: #3b82f6; /* blue-500 */
+    --primary-foreground: #ffffff;
+    --secondary: #334155; /* slate-700 */
+    --secondary-foreground: #f8fafc;
+    --muted: #334155;
+    --muted-foreground: #94a3b8; /* slate-400 */
+    --accent: #334155;
+    --accent-foreground: #f8fafc;
+    --destructive: #ef4444; /* red-500 */
+    --destructive-foreground: #ffffff;
+    --border: #334155; /* slate-700 */
+    --input: #334155;
+    --ring: #3b82f6;
+    --warning: #eab308; /* yellow-500 */
+    --warning-foreground: #ffffff;
+    --success: #10b981; /* emerald-500 */
+    --success-foreground: #ffffff;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image: radial-gradient(circle at 50% 0, #1e293b 0, #0f172a 100%);
+    min-height: 100vh;
+  }
+}
+
+.glass-panel {
+  @apply bg-slate-900/60 backdrop-blur-xl border border-slate-800/60 shadow-xl;
+}
+
+.recharts-tooltip-cursor {
+  fill: #1e293b;
+}
