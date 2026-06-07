@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login } from '../actions';
+import Papa from 'papaparse';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
@@ -19,23 +19,59 @@ export default function LoginPage() {
     const password = formData.get('password');
     
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const csvUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL;
+      if (!csvUrl) {
+        setError('Google Sheet URL not configured in .env.local');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(csvUrl, { cache: 'no-store' });
+      if (!response.ok) {
+        setError('Failed to connect to database');
+        setLoading(false);
+        return;
+      }
+
+      const csvText = await response.text();
+      
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const users = results.data;
+          const user = users.find(u => u.email === email);
+
+          if (!user || user.password !== password) {
+            setError('Invalid credentials');
+            setLoading(false);
+            return;
+          }
+
+          if (user.status && user.status.toLowerCase() !== 'active' && user.status.trim() !== '') {
+            setError('Account is not active');
+            setLoading(false);
+            return;
+          }
+
+          // Successfully authenticated!
+          localStorage.setItem('user', JSON.stringify({
+            name: user.name,
+            email: user.email,
+            role: user.role
+          }));
+          
+          router.push('/dashboard');
+        },
+        error: (err) => {
+          console.error(err);
+          setError('Failed to parse database');
+          setLoading(false);
+        }
       });
       
-      const result = await response.json();
-
-      if (!response.ok || result.error) {
-        setError(result.error || 'Login failed');
-        setLoading(false);
-      } else if (result.success) {
-        localStorage.setItem('user', JSON.stringify(result.user));
-        // Force a hard refresh to make sure middleware picks up the cookie, or router.push
-        window.location.href = '/dashboard';
-      }
     } catch (err) {
+      console.error(err);
       setError('An error occurred during login');
       setLoading(false);
     }
