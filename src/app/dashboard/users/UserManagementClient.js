@@ -16,37 +16,37 @@ export default function UserManagementClient({ initialUsers }) {
   const router = useRouter();
 
   const filteredUsers = users.filter(u => 
-    u['Full Name']?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.Email?.toLowerCase().includes(searchTerm.toLowerCase())
+    u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const openAddModal = () => {
-    setFormData({ id: '', name: '', email: '', password: '', role: 'User', permissions: 'read', status: 'Active' });
+    setFormData({ id: '', name: '', email: '', password: '', role: 'user', permissions: 'read', status: 'active' });
     setIsEditMode(false);
     setIsModalOpen(true);
   };
 
   const openEditModal = (user) => {
     setFormData({ 
-      id: user.ID, 
-      name: user['Full Name'], 
-      email: user.Email, 
-      password: user.PasswordHash, // Might not show it fully if we want security, but for demo we do
-      role: user.Role, 
-      permissions: user.Permissions, 
-      status: user.Status 
+      id: user.email, 
+      name: user.name, 
+      email: user.email, 
+      password: user.password,
+      role: user.role, 
+      permissions: user.permissions || (user.role?.toLowerCase() === 'admin' ? 'all' : ''), 
+      status: user.status 
     });
     setIsEditMode(true);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (email) => {
     if (!confirm('Are you sure you want to delete this user?')) return;
     
     // Optimistic UI update
-    setUsers(prev => prev.filter(u => u.ID !== id));
+    setUsers(prev => prev.filter(u => u.email !== email));
     
-    const result = await deleteUser(id);
+    const result = await deleteUser(email);
     if (!result?.success) {
       alert(result?.error || 'Failed to delete user');
       // Revert if failed (in a real app you'd refetch)
@@ -61,8 +61,8 @@ export default function UserManagementClient({ initialUsers }) {
     if (isEditMode) {
       const result = await updateUser(formData);
       if (result?.success) {
-        setUsers(prev => prev.map(u => u.ID === formData.id ? {
-          ...u, 'Full Name': formData.name, Email: formData.email, Role: formData.role, Permissions: formData.permissions, Status: formData.status
+        setUsers(prev => prev.map(u => u.email === formData.email ? {
+          ...u, name: formData.name, email: formData.email, role: formData.role, permissions: formData.permissions, status: formData.status
         } : u));
         setIsModalOpen(false);
       } else {
@@ -120,27 +120,27 @@ export default function UserManagementClient({ initialUsers }) {
             </thead>
             <tbody>
               {filteredUsers.map(user => (
-                <tr key={user.ID || user.Email}>
-                  <td>{user.ID}</td>
-                  <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{user['Full Name']}</td>
-                  <td>{user.Email}</td>
+                <tr key={user.email}>
+                  <td>-</td>
+                  <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{user.name}</td>
+                  <td>{user.email}</td>
                   <td>
                     <span style={{ 
                       fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', 
-                      borderRadius: '999px', background: user.Role === 'Admin' ? '#fef08a' : '#e0e7ff',
-                      color: user.Role === 'Admin' ? '#854d0e' : '#3730a3', textTransform: 'uppercase'
+                      borderRadius: '999px', background: user.role?.toLowerCase() === 'admin' ? '#fef08a' : '#e0e7ff',
+                      color: user.role?.toLowerCase() === 'admin' ? '#854d0e' : '#3730a3', textTransform: 'uppercase'
                     }}>
-                      {user.Role}
+                      {user.role}
                     </span>
                   </td>
                   <td>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                      {user.Permissions || '-'}
+                      {user.permissions || (user.role?.toLowerCase() === 'admin' ? 'all' : '-')}
                     </span>
                   </td>
                   <td>
-                    <span className={`status-badge ${user.Status?.toLowerCase() === 'active' ? 'active' : 'inactive'}`}>
-                      {user.Status || 'Unknown'}
+                    <span className={`status-badge ${user.status?.toLowerCase() === 'active' ? 'active' : 'inactive'}`}>
+                      {user.status || 'Unknown'}
                     </span>
                   </td>
                   <td>
@@ -148,7 +148,7 @@ export default function UserManagementClient({ initialUsers }) {
                       <button onClick={() => openEditModal(user)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)' }} title="Edit">
                         <Edit size={16} />
                       </button>
-                      <button onClick={() => handleDelete(user.ID)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)' }} title="Delete">
+                      <button onClick={() => handleDelete(user.email)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)' }} title="Delete">
                         <Trash2 size={16} />
                       </button>
                     </div>

@@ -5,7 +5,8 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET_KEY || 'super-secret-admin-analysis-key-12345'
 );
 
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1QpcT4X-htZnFb0-ghIzSoofzFif5TQXgWfh-fMu84iA/export?format=csv';
+// Fallback to the new URL if env variable is somehow not loaded on client
+const SHEET_URL = process.env.NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL || 'https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/gviz/tq?tqx=out:csv&sheet=Login';
 
 export async function fetchUsers() {
   const res = await fetch(SHEET_URL, { cache: 'no-store' });

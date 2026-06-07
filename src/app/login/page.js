@@ -58,7 +58,8 @@ export default function LoginPage() {
           localStorage.setItem('user', JSON.stringify({
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            permissions: user.permissions || (user.role?.toLowerCase() === 'admin' ? 'all' : '')
           }));
           
           router.push('/dashboard');
