@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 import CategorySection from '../CategorySection';
 import AutoRefresh from '@/components/AutoRefresh';
@@ -60,8 +62,7 @@ function getState(location) {
   return 'Other';
 }
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Removed dynamic and revalidate for static export
 
 // Fetch data on the server component
 async function getSheetData() {
@@ -83,12 +84,30 @@ async function getSheetData() {
   return result.data;
 }
 
-export default async function StateWiseDashboard() {
-  let rawData = [];
-  try {
-    rawData = await getSheetData();
-  } catch (e) {
-    return <div className="loading">Failed to load data.</div>;
+export default function StateWiseDashboard() {
+  const [rawData, setRawData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getSheetData();
+        setRawData(data || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+    
+    // Setup interval for auto-refresh since we can't use server-side revalidate
+    const interval = setInterval(loadData, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return <div className="loading">Loading data...</div>;
   }
 
   // Filter and group data by State and Category
@@ -153,7 +172,6 @@ export default async function StateWiseDashboard() {
 
   return (
     <div className="ticket-analyst-container">
-      <AutoRefresh interval={15000} />
       <header className="ticket-analyst-header">
         <h1 className="ticket-analyst-title">State-Wise Operations Dashboard</h1>
         <p className="ticket-analyst-subtitle">

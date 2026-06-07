@@ -1,18 +1,35 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { fetchUsers } from '@/lib/auth';
 import { Users, Shield, UserCheck, Activity } from 'lucide-react';
 
-export default async function DashboardPage() {
-  let users = [];
-  try {
-    users = await fetchUsers();
-  } catch (error) {
-    console.error('Failed to load dashboard data', error);
-  }
+export default function DashboardPage() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await fetchUsers();
+        setUsers(data || []);
+      } catch (error) {
+        console.error('Failed to load dashboard data', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   const totalUsers = users.length;
   const activeUsers = users.filter(u => u.Status?.toLowerCase() === 'active').length;
   const admins = users.filter(u => u.Role?.toLowerCase() === 'admin').length;
   
+  if (loading) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading dashboard data...</div>;
+  }
+
   return (
     <div>
       <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>Dashboard Overview</h2>

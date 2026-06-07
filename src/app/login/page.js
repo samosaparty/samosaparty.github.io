@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { login } from '../actions';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -13,13 +15,18 @@ export default function LoginPage() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const result = await login(formData);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    
+    const result = await login(email, password);
 
     if (result?.error) {
       setError(result.error);
       setLoading(false);
+    } else if (result?.success) {
+      localStorage.setItem('user', JSON.stringify(result.user));
+      router.push('/dashboard');
     }
-    // If successful, the action will redirect to /dashboard
   }
 
   return (

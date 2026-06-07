@@ -35,6 +35,9 @@ export function Dashboard() {
     
     const originals: typeof tickets = [];
     const duplicates: typeof tickets = [];
+    
+    // Group open originals by city to speed up deduplication search (prevents O(N^2) UI freeze)
+    const openOriginalsByCity: Record<string, typeof tickets> = {};
 
     tickets.forEach(ticket => {
       const isClosed = ticket.Status?.toLowerCase() === 'closed';
@@ -45,17 +48,14 @@ export function Dashboard() {
         return;
       }
 
+      const city = ticket.City || 'Unknown';
+      const cityOriginals = openOriginalsByCity[city] || [];
+
       // Deduplication Rule: 
-      // 1. City must match 100%
+      // 1. City must match 100% (ensured by cityOriginals group)
       // 2. Any 2 out of 3 (ID, Title, Category) must match
       // 3. Both must be OPEN tickets
-      const matchingOrig = originals.find(orig => {
-        const origIsOpen = orig.Status?.toLowerCase() !== 'closed';
-        if (!origIsOpen) return false;
-
-        // City must match 100%
-        if (orig.City !== ticket.City) return false;
-
+      const matchingOrig = cityOriginals.find(orig => {
         let matches = 0;
         if (orig.ID && ticket.ID && orig.ID === ticket.ID) matches++;
         if (orig.Title && ticket.Title && orig.Title === ticket.Title) matches++;
@@ -70,6 +70,10 @@ export function Dashboard() {
         });
       } else {
         originals.push(ticket);
+        if (!openOriginalsByCity[city]) {
+          openOriginalsByCity[city] = [];
+        }
+        openOriginalsByCity[city].push(ticket);
       }
     });
 

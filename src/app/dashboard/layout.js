@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { logout } from '../actions';
 import { Home, Users, Settings, LogOut, Menu, BarChart3, Bell, ChevronDown, Ticket, Monitor } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [session, setSession] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
@@ -30,16 +30,22 @@ export default function DashboardLayout({ children }) {
   }, [pathname]);
 
   useEffect(() => {
-    // We can fetch user session from cookies via an API or just use a small route
-    // For simplicity, we'll fetch a dedicated endpoint we will build next
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        if (data.user) {
-          setSession(data.user);
-        }
-      });
-  }, []);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setSession(JSON.parse(storedUser));
+      } catch (e) {
+        router.push('/login');
+      }
+    } else {
+      router.push('/login');
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
 
   if (!session) {
     return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
@@ -166,7 +172,7 @@ export default function DashboardLayout({ children }) {
             </div>
 
             <button 
-              onClick={() => logout()}
+              onClick={handleLogout}
               style={{ 
                 background: 'none', border: 'none', color: 'var(--text-muted)', 
                 cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: '0.5rem' 

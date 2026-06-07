@@ -1,13 +1,6 @@
-'use server';
+import { authenticateUser } from '@/lib/auth';
 
-import { authenticateUser, createSession } from '@/lib/auth';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-
-export async function login(formData) {
-  const email = formData.get('email');
-  const password = formData.get('password');
-
+export async function login(email, password) {
   if (!email || !password) {
     return { error: 'Email and password are required' };
   }
@@ -18,30 +11,11 @@ export async function login(formData) {
     return { error: result.error };
   }
 
-  // Create JWT session token
-  const token = await createSession(result.user);
-
-  // Set HTTP-only cookie
-  const cookieStore = await cookies();
-  cookieStore.set('session', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24, // 24 hours
-    path: '/',
-  });
-
-  redirect('/dashboard');
-}
-
-export async function logout() {
-  const cookieStore = await cookies();
-  cookieStore.delete('session');
-  redirect('/login');
+  return { success: true, user: result.user };
 }
 
 // User Management CRUD Actions
-const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL || ''; // The URL will be configured in .env.local
+const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || ''; 
 
 export async function addUser(userData) {
   if (!APPS_SCRIPT_URL) return { success: false, error: 'APPS_SCRIPT_URL is not configured' };
