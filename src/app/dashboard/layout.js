@@ -122,6 +122,18 @@ export default function DashboardLayout({ children }) {
                 <Link href="/dashboard/it-management/internet-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/internet-details' ? 'active' : ''}`}>
                   Internet Details
                 </Link>
+                <Link href="/dashboard/it-management/wifi-password" className={`sub-nav-item ${pathname === '/dashboard/it-management/wifi-password' ? 'active' : ''}`}>
+                  Wifi-Password
+                </Link>
+                <Link href="/dashboard/it-management/camera-password" className={`sub-nav-item ${pathname === '/dashboard/it-management/camera-password' ? 'active' : ''}`}>
+                  Camera-Password
+                </Link>
+                <Link href="/dashboard/it-management/anydesk-id" className={`sub-nav-item ${pathname === '/dashboard/it-management/anydesk-id' ? 'active' : ''}`}>
+                  Anydesk ID
+                </Link>
+                <Link href="/dashboard/it-management/prime" className={`sub-nav-item ${pathname === '/dashboard/it-management/prime' ? 'active' : ''}`}>
+                  Prime
+                </Link>
               </div>
             )}
           </div>
