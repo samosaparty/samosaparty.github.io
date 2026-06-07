@@ -18,14 +18,26 @@ export default function LoginPage() {
     const email = formData.get('email');
     const password = formData.get('password');
     
-    const result = await login(email, password);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const result = await response.json();
 
-    if (result?.error) {
-      setError(result.error);
+      if (!response.ok || result.error) {
+        setError(result.error || 'Login failed');
+        setLoading(false);
+      } else if (result.success) {
+        localStorage.setItem('user', JSON.stringify(result.user));
+        // Force a hard refresh to make sure middleware picks up the cookie, or router.push
+        window.location.href = '/dashboard';
+      }
+    } catch (err) {
+      setError('An error occurred during login');
       setLoading(false);
-    } else if (result?.success) {
-      localStorage.setItem('user', JSON.stringify(result.user));
-      router.push('/dashboard');
     }
   }
 
