@@ -137,7 +137,8 @@ export default function CameraPasswordPage() {
         </div>
         
         {/* Table */}
-        <div className="overflow-x-auto relative min-h-[400px]">
+        <div className="p-8 md:p-10 relative min-h-[400px]">
+          <div className="table-responsive">
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
               <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
@@ -145,12 +146,12 @@ export default function CameraPasswordPage() {
             </div>
           ) : null}
 
-          <table className="w-full text-left border-collapse data-table" style={{ backgroundColor: 'white' }}>
-            <thead style={{ backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <table>
+            <thead>
               <tr>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Store Name</th>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Camera Credentials</th>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Associated Anydesk</th>
+                <th>Store Name</th>
+                <th>Camera Credentials</th>
+                <th>Associated Anydesk</th>
               </tr>
             </thead>
             <tbody>
@@ -166,9 +167,9 @@ export default function CameraPasswordPage() {
                 </tr>
               ) : (
                 paginatedData.map((row, index) => (
-                  <tr key={index} className="group" style={{ borderBottom: '1px solid var(--border)', transition: 'all 0.2s ease', cursor: 'default' }}>
+                  <tr key={index} className="group" >
                     {/* Store Name */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-sm transition-all border border-slate-200">
                           <Camera className="w-5 h-5 text-slate-500" />
@@ -180,7 +181,7 @@ export default function CameraPasswordPage() {
                     </td>
 
                     {/* Camera Credentials */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex flex-col gap-2">
                         {row.camUser || row.camPass ? (
                           <>
@@ -204,7 +205,7 @@ export default function CameraPasswordPage() {
                     </td>
 
                     {/* Associated Anydesk */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex flex-col gap-2">
                         {row.anydeskId || row.anydeskPass ? (
                           <>
@@ -234,6 +235,7 @@ export default function CameraPasswordPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Pagination Controls */}

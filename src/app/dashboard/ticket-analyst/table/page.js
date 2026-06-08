@@ -66,7 +66,7 @@ function getState(location) {
 
 // Fetch data on the server component
 async function getSheetData() {
-  const url = 'https://docs.google.com/spreadsheets/d/1lA4SCfrmV_ZlN4MWjElnfF8RrA1lFMogl1i5o1j6JCE/export?format=csv';
+  const url = 'https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/export?format=csv&gid=971526995';
   
   const response = await fetch(url, { cache: 'no-store' });
   

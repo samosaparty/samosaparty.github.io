@@ -63,7 +63,9 @@ export default function DashboardLayout({ children }) {
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <BarChart3 style={{ marginRight: '10px', color: 'var(--primary)' }} />
-          Admin Analysis
+          <a href="https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+            Admin Analysis
+          </a>
         </div>
         <nav className="sidebar-nav">
           <Link href="/dashboard" className={`nav-item ${pathname === '/dashboard' ? 'active' : ''}`}>

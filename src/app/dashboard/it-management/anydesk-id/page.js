@@ -126,7 +126,8 @@ export default function AnydeskIDPage() {
         </div>
         
         {/* Table */}
-        <div className="overflow-x-auto relative min-h-[400px]">
+        <div className="p-8 md:p-10 relative min-h-[400px]">
+          <div className="table-responsive">
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
               <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
@@ -134,12 +135,12 @@ export default function AnydeskIDPage() {
             </div>
           ) : null}
 
-          <table className="w-full text-left border-collapse data-table" style={{ backgroundColor: 'white' }}>
-            <thead style={{ backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <table>
+            <thead>
               <tr>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)', width: '40%' }}>Store / Asset Name</th>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)', width: '30%' }}>Anydesk ID</th>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)', width: '30%' }}>Password</th>
+                <th>Store / Asset Name</th>
+                <th>Anydesk ID</th>
+                <th>Password</th>
               </tr>
             </thead>
             <tbody>
@@ -155,9 +156,9 @@ export default function AnydeskIDPage() {
                 </tr>
               ) : (
                 paginatedData.map((row, index) => (
-                  <tr key={index} className="group" style={{ borderBottom: '1px solid var(--border)', transition: 'all 0.2s ease', cursor: 'default' }}>
+                  <tr key={index} className="group" >
                     {/* Store Name */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-sm transition-all border border-slate-200">
                           <MonitorSmartphone className="w-5 h-5 text-slate-500" />
@@ -169,7 +170,7 @@ export default function AnydeskIDPage() {
                     </td>
 
                     {/* Anydesk ID */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       {row['Anydesk ID'] ? (
                         <span className="font-mono text-[1.05rem] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-2" style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', letterSpacing: '0.5px' }}>
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -181,7 +182,7 @@ export default function AnydeskIDPage() {
                     </td>
 
                     {/* Password */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       {row['Password'] ? (
                         <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg inline-flex" style={{ border: '1px solid var(--border)' }}>
                           <span className="text-[0.75rem] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>PWD</span>
@@ -199,6 +200,7 @@ export default function AnydeskIDPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Pagination Controls */}

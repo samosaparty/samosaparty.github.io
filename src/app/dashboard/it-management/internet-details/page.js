@@ -189,7 +189,8 @@ export default function InternetDetailsPage() {
         </div>
         
         {/* Table */}
-        <div className="overflow-x-auto relative min-h-[400px]">
+        <div className="p-8 md:p-10 relative min-h-[400px]">
+          <div className="table-responsive">
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
               <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
@@ -197,14 +198,14 @@ export default function InternetDetailsPage() {
             </div>
           ) : null}
 
-          <table className="w-full text-left border-collapse data-table" style={{ backgroundColor: 'white' }}>
-            <thead style={{ backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <table>
+            <thead>
               <tr>
-                <th className="px-6 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Premise Details</th>
-                <th className="px-6 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Location</th>
-                <th className="px-6 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Network Info</th>
-                <th className="px-6 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Account</th>
-                <th className="px-6 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)' }}>Credentials</th>
+                <th>Premise Details</th>
+                <th>Location</th>
+                <th>Network Info</th>
+                <th>Account</th>
+                <th>Credentials</th>
               </tr>
             </thead>
             <tbody>
@@ -220,9 +221,9 @@ export default function InternetDetailsPage() {
                 </tr>
               ) : (
                 paginatedData.map((row, index) => (
-                  <tr key={index} className="group" style={{ borderBottom: '1px solid var(--border)', transition: 'all 0.2s ease', cursor: 'default' }}>
+                  <tr key={index} className="group" >
                     {/* Premise Details */}
-                    <td className="px-6 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex flex-col gap-1.5">
                         <span className="font-extrabold text-[0.95rem]" style={{ color: 'var(--text-main)' }}>
                           {row['Kitchen Name'] || 'Unknown'}
@@ -239,7 +240,7 @@ export default function InternetDetailsPage() {
                     </td>
 
                     {/* Location */}
-                    <td className="px-6 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex items-center gap-2.5">
                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--success)', boxShadow: '0 0 0 3px rgba(16, 185, 129, 0.2)' }}></div>
                         <span className="font-bold text-[0.9rem]" style={{ color: 'var(--text-main)' }}>{row['State'] || '-'}</span>
@@ -247,7 +248,7 @@ export default function InternetDetailsPage() {
                     </td>
 
                     {/* Network Info */}
-                    <td className="px-6 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2.5">
                           <Wifi className="w-4.5 h-4.5" style={{ color: 'var(--primary)' }} />
@@ -259,14 +260,14 @@ export default function InternetDetailsPage() {
                     </td>
 
                     {/* Account */}
-                    <td className="px-6 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <span className="font-mono text-[0.85rem] font-bold px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'white', color: 'var(--text-main)', border: '1px solid var(--border)', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
                         {row['Account No'] || 'N/A'}
                       </span>
                     </td>
 
                     {/* Credentials */}
-                    <td className="px-6 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex flex-col gap-2">
                         {row['Wifi Name'] && (
                           <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg" style={{ border: '1px solid var(--border)' }}>
@@ -294,6 +295,7 @@ export default function InternetDetailsPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Pagination Controls */}

@@ -137,7 +137,8 @@ export default function PrimeDirectoryPage() {
         </div>
         
         {/* Table */}
-        <div className="overflow-x-auto relative min-h-[400px]">
+        <div className="p-8 md:p-10 relative min-h-[400px]">
+          <div className="table-responsive">
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
               <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
@@ -145,12 +146,12 @@ export default function PrimeDirectoryPage() {
             </div>
           ) : null}
 
-          <table className="w-full text-left border-collapse data-table" style={{ backgroundColor: 'white' }}>
-            <thead style={{ backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <table>
+            <thead>
               <tr>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)', width: '25%' }}>Store Info</th>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)', width: '40%' }}>Account & Passwords</th>
-                <th className="px-8 py-5 text-xs font-extrabold uppercase tracking-wider" style={{ color: 'var(--text-main)', borderBottom: '2px solid var(--border)', width: '35%' }}>Recovery Details</th>
+                <th>Store Info</th>
+                <th>Account & Passwords</th>
+                <th>Recovery Details</th>
               </tr>
             </thead>
             <tbody>
@@ -166,16 +167,16 @@ export default function PrimeDirectoryPage() {
                 </tr>
               ) : (
                 paginatedData.map((row, index) => (
-                  <tr key={index} className="group" style={{ borderBottom: '1px solid var(--border)', transition: 'all 0.2s ease', cursor: 'default' }}>
+                  <tr key={index} className="group" >
                     {/* Store Name */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <span className="font-extrabold text-[0.95rem]" style={{ color: 'var(--text-main)' }}>
                         {row.storeName || 'Unknown Store'}
                       </span>
                     </td>
 
                     {/* Account & Passwords */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex flex-col gap-2">
                         {row.emailId ? (
                           <div className="flex items-center gap-2">
@@ -211,7 +212,7 @@ export default function PrimeDirectoryPage() {
                     </td>
 
                     {/* Recovery Details */}
-                    <td className="px-8 py-5 group-hover:bg-slate-50 transition-colors">
+                    <td>
                       <div className="flex flex-col gap-2">
                         {row.recoveryEmail && (
                           <div className="flex items-center gap-2">
@@ -240,6 +241,7 @@ export default function PrimeDirectoryPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Pagination Controls */}
