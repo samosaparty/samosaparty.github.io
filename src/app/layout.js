@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Admin Analysis Dashboard',
-  description: 'Corporate Admin Panel backed by Google Sheets',
+  title: 'Samosa Party Dashboard',
+  description: 'Analysis dashboard for administrative purposes',
 };
 
 export default function RootLayout({ children }) {

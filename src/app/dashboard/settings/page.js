@@ -25,8 +25,8 @@ export default function SettingsPage() {
           <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>General Settings</h3>
           
           <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label className="form-label">Platform Name</label>
-            <input type="text" className="form-input" defaultValue="Admin Analysis" />
+            <label className="form-label">System Name</label>
+            <input type="text" className="form-input" defaultValue="Samosa Party" />
           </div>
 
           <div className="form-group" style={{ marginBottom: '1.5rem' }}>

@@ -26,7 +26,7 @@ export default function RegisterPage() {
       <div className="auth-card">
         <div className="auth-header">
           <h1>Create an Account</h1>
-          <p>Request access to Admin Analysis</p>
+          <p>Request access to Samosa Party</p>
         </div>
 
         {status && (

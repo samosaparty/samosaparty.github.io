@@ -83,7 +83,7 @@ export default function DashboardLayout({ children }) {
         <div className="sidebar-header">
           <BarChart3 style={{ marginRight: '10px', color: 'var(--primary)' }} />
           <a href="https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-            Admin Analysis
+            Samosa Party
           </a>
         </div>
         <nav className="sidebar-nav">

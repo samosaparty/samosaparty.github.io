@@ -82,8 +82,7 @@ export default function LoginPage() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Admin Analysis</h1>
-          <p>Sign in to access your dashboard</p>
+          <h1>Samosa Party</h1>
         </div>
 
         {error && (
