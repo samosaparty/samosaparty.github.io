@@ -397,6 +397,14 @@ th, td {
   white-space: nowrap;
 }
 
+td {
+  cursor: pointer;
+}
+
+td:active {
+  opacity: 0.7;
+}
+
 th:last-child, td:last-child {
   border-right: none;
 }
@@ -551,6 +559,14 @@ tbody tr:hover { background-color: #e0f2fe; }
   border-right: 1px solid var(--border);
   font-size: 0.85rem;
   white-space: nowrap;
+}
+
+.data-table td {
+  cursor: pointer;
+}
+
+.data-table td:active {
+  opacity: 0.7;
 }
 
 .data-table th:last-child, .data-table td:last-child {

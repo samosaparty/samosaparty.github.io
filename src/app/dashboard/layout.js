@@ -12,6 +12,25 @@ export default function DashboardLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
   const [isITMenuOpen, setIsITMenuOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  // Global click-to-copy handler for table cells
+  useEffect(() => {
+    const handleTableClick = (e) => {
+      const td = e.target.closest('td');
+      if (td) {
+        const textToCopy = td.innerText?.trim();
+        if (textToCopy) {
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            setToastMessage('Copied: ' + (textToCopy.length > 30 ? textToCopy.substring(0, 30) + '...' : textToCopy));
+            setTimeout(() => setToastMessage(''), 2000);
+          }).catch(err => console.error('Failed to copy', err));
+        }
+      }
+    };
+    document.addEventListener('click', handleTableClick);
+    return () => document.removeEventListener('click', handleTableClick);
+  }, []);
 
   useEffect(() => {
     if (pathname.includes('/ticket-analyst')) {
@@ -203,6 +222,32 @@ export default function DashboardLayout({ children }) {
           {children}
         </main>
       </div>
+
+      {/* Global Toast for Copy actions */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          backgroundColor: 'var(--success, #10b981)',
+          color: 'white',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 9999,
+          fontWeight: 'bold',
+          fontSize: '0.9rem',
+          animation: 'fadein 0.3s'
+        }}>
+          <style>{`
+            @keyframes fadein {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }
