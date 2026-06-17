@@ -1,42 +1,32 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Mail, Search, AlertCircle, Download, KeyRound, Smartphone } from 'lucide-react';
+import { Shield, Search, Filter, AlertCircle, Download } from 'lucide-react';
 import Papa from 'papaparse';
 
-export default function PrimeDirectoryPage() {
+export default function PrimeDetailsPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Search
+  // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterCity, setFilterCity] = useState('All');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    const csvUrl = 'https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/gviz/tq?tqx=out:csv&sheet=Prime';
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/export?format=csv&gid=1537821073';
     
     fetch(csvUrl, { cache: 'no-store' })
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
-          header: false,
+          header: true,
           skipEmptyLines: true,
           complete: (results) => {
-            if (results.data && results.data.length > 1) {
-              // Skip first row (headers) and map to objects by index
-              const parsedData = results.data.slice(1).map(row => ({
-                storeName: row[0] || '',
-                emailId: row[1] || '',
-                emailPass: row[2] || '',
-                primePass: row[3] || '',
-                recoveryEmail: row[4] || '',
-                recoveryPhone: row[5] || ''
-              }));
-              setData(parsedData);
-            }
+            setData(results.data);
             setLoading(false);
           },
           error: (err) => {
@@ -51,22 +41,27 @@ export default function PrimeDirectoryPage() {
       });
   }, []);
 
-  // Apply search
-  const filteredData = useMemo(() => {
-    return data.filter(item => {
-      if (!searchTerm) return true;
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        item.storeName.toLowerCase().includes(searchLower) ||
-        item.emailId.toLowerCase().includes(searchLower)
-      );
-    });
-  }, [data, searchTerm]);
+  // Extract unique values for filters
+  const uniqueCities = useMemo(() => ['All', ...new Set(data.map(item => item['City']).filter(Boolean))], [data]);
 
-  // Reset page when search changes
+  // Apply filters and search
+  const filteredData = useMemo(() => {
+    return data.filter(row => {
+      const matchSearch = 
+        row['Outlet_Name']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row['Webmail Username']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row['LOGIN URL']?.toLowerCase().includes(searchTerm.toLowerCase());
+        
+      const matchCity = filterCity === 'All' || row['City'] === filterCity;
+
+      return matchSearch && matchCity;
+    });
+  }, [data, searchTerm, filterCity]);
+
+  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, filterCity]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -78,7 +73,7 @@ export default function PrimeDirectoryPage() {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'prime_directory.csv';
+    link.download = 'prime_details.csv';
     link.click();
   };
 
@@ -90,12 +85,12 @@ export default function PrimeDirectoryPage() {
         <div>
           <h1 className="text-2xl font-extrabold flex items-center gap-3 tracking-tight" style={{ color: 'var(--text-main)' }}>
             <div className="p-2.5 rounded-xl" style={{ backgroundColor: 'var(--secondary)', color: 'var(--primary)' }}>
-              <KeyRound className="w-6 h-6" strokeWidth={2.5} />
+              <Shield className="w-6 h-6" strokeWidth={2.5} />
             </div>
-            Prime Accounts Directory
+            Prime Details
           </h1>
           <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-muted)' }}>
-            Store email credentials, Prime passwords, and recovery details.
+            Manage Prime credentials and details across all outlets.
           </p>
         </div>
         
@@ -109,18 +104,18 @@ export default function PrimeDirectoryPage() {
         </button>
       </div>
 
-      {/* Main Container */}
+      {/* Main Table Container */}
       <div className="card flex flex-col flex-1" style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)', borderRadius: '16px', overflow: 'hidden' }}>
         
-        {/* Controls Bar (Search) */}
+        {/* Controls Bar (Search & Filters) */}
         <div className="p-5 border-b flex flex-row items-center gap-5 overflow-x-auto custom-scrollbar" style={{ borderColor: 'var(--border)', backgroundColor: '#ffffff', whiteSpace: 'nowrap' }}>
           
           {/* Search */}
-          <div style={{ position: 'relative', width: '350px', flexShrink: 0 }}>
+          <div style={{ position: 'relative', width: '300px', flexShrink: 0 }}>
             <Search className="w-5 h-5" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
             <input 
               type="text" 
-              placeholder="Search Store Name or Email..." 
+              placeholder="Search Outlet, Username..." 
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="form-input transition-all"
@@ -128,11 +123,36 @@ export default function PrimeDirectoryPage() {
             />
           </div>
 
+          {/* Filters Divider */}
           <div style={{ width: '1px', height: '32px', backgroundColor: 'var(--border)', flexShrink: 0, opacity: 0.6 }}></div>
-          
-          {/* Active count badge */}
-          <div className="px-3 py-1.5 rounded-lg text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: 'white', boxShadow: '0 2px 8px rgba(255, 85, 0, 0.25)' }}>
-            {filteredData.length} Accounts Found
+
+          {/* Filters */}
+          <div className="flex flex-row items-center gap-4 flex-nowrap" style={{ flexShrink: 0 }}>
+            <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>
+              <Filter className="w-4 h-4" />
+              Filters:
+            </div>
+            
+            <div style={{ position: 'relative', minWidth: '150px' }}>
+              <select 
+                value={filterCity}
+                onChange={(e) => setFilterCity(e.target.value)}
+                className="form-input appearance-none cursor-pointer transition-colors hover:bg-slate-50"
+                style={{ borderRadius: '10px', padding: '10px 36px 10px 16px', width: '100%', fontSize: '0.9rem', fontWeight: 600, backgroundColor: 'white', border: '1px solid var(--border)' }}
+              >
+                {uniqueCities.map(city => (
+                  <option key={city} value={city}>{city === 'All' ? 'All Cities' : city}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+                ▼
+              </div>
+            </div>
+            
+            {/* Active count badge */}
+            <div className="ml-2 px-3 py-1.5 rounded-lg text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: 'white', boxShadow: '0 2px 8px rgba(255, 85, 0, 0.25)' }}>
+              {filteredData.length} Results
+            </div>
           </div>
         </div>
         
@@ -141,100 +161,63 @@ export default function PrimeDirectoryPage() {
           <div className="table-responsive">
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
-              <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
-              <p className="text-slate-500 font-medium">Loading Prime directory...</p>
+              <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+              <p className="text-slate-500 font-medium">Syncing prime details...</p>
             </div>
           ) : null}
 
           <table>
             <thead>
               <tr>
-                <th>Store Info</th>
-                <th>Account & Passwords</th>
-                <th>Recovery Details</th>
+                <th>City</th>
+                <th>Outlet Name</th>
+                <th>Login URL</th>
+                <th>Webmail Username</th>
+                <th>Webmail Password</th>
               </tr>
             </thead>
             <tbody>
               {!loading && filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan="3" className="px-6 py-20 text-center">
+                  <td colSpan="5" className="px-6 py-20 text-center">
                     <div className="flex flex-col items-center justify-center" style={{ color: 'var(--text-muted)' }}>
                       <AlertCircle className="w-14 h-14 mb-4" style={{ color: 'var(--border)', opacity: 0.8 }} />
-                      <p className="text-xl font-bold" style={{ color: 'var(--text-main)' }}>No accounts found</p>
-                      <p className="text-sm mt-2">Try adjusting your search term.</p>
+                      <p className="text-xl font-bold" style={{ color: 'var(--text-main)' }}>No details found</p>
+                      <p className="text-sm mt-2">Try adjusting your filters or search term.</p>
                     </div>
                   </td>
                 </tr>
               ) : (
                 paginatedData.map((row, index) => (
-                  <tr key={index} className="group" >
-                    {/* Store Name */}
+                  <tr key={index} className="group">
+                    <td>
+                      <span className="font-bold text-[0.9rem]" style={{ color: 'var(--text-main)' }}>{row['City'] || '-'}</span>
+                    </td>
                     <td>
                       <span className="font-extrabold text-[0.95rem]" style={{ color: 'var(--text-main)' }}>
-                        {row.storeName || 'Unknown Store'}
+                        {row['Outlet_Name'] || 'Unknown'}
                       </span>
                     </td>
-
-                    {/* Account & Passwords */}
                     <td>
-                      <div className="flex flex-col gap-2">
-                        {row.emailId ? (
-                          <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                            <span className="font-semibold text-[0.9rem]" style={{ color: 'var(--text-main)' }}>{row.emailId}</span>
-                          </div>
-                        ) : (
-                          <span className="text-[0.85rem] font-medium italic" style={{ color: 'var(--text-muted)' }}>No Email</span>
-                        )}
-
-                        <div className="flex flex-wrap items-center gap-2 mt-1">
-                          {row.emailPass && (
-                            <div className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg inline-flex" style={{ border: '1px solid var(--border)' }}>
-                              <span className="text-[0.7rem] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>EMAIL PWD</span>
-                              <div className="w-[1px] h-3 bg-slate-200 mx-1"></div>
-                              <span className="text-[0.8rem] font-mono font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' }}>
-                                {row.emailPass}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {row.primePass && (
-                            <div className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg inline-flex" style={{ border: '1px solid var(--border)' }}>
-                              <span className="text-[0.7rem] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>PRIME PWD</span>
-                              <div className="w-[1px] h-3 bg-slate-200 mx-1"></div>
-                              <span className="text-[0.8rem] font-mono font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>
-                                {row.primePass}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      <a 
+                        href={row['LOGIN URL']} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 hover:underline text-[0.9rem]"
+                        style={{ wordBreak: 'break-all' }}
+                      >
+                        {row['LOGIN URL'] || '-'}
+                      </a>
                     </td>
-
-                    {/* Recovery Details */}
                     <td>
-                      <div className="flex flex-col gap-2">
-                        {row.recoveryEmail && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-[0.75rem] font-bold uppercase tracking-wider w-16" style={{ color: 'var(--text-muted)' }}>EMAIL:</span>
-                            <span className="text-sm font-semibold" style={{ color: 'var(--text-main)' }}>{row.recoveryEmail}</span>
-                          </div>
-                        )}
-                        {row.recoveryPhone && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-[0.75rem] font-bold uppercase tracking-wider w-16" style={{ color: 'var(--text-muted)' }}>PHONE:</span>
-                            <div className="flex items-center gap-1.5">
-                              <Smartphone className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
-                              <span className="font-mono text-sm font-bold" style={{ color: 'var(--primary)', letterSpacing: '0.5px' }}>
-                                {row.recoveryPhone}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        {!row.recoveryEmail && !row.recoveryPhone && (
-                          <span className="text-[0.85rem] font-medium italic" style={{ color: 'var(--text-muted)' }}>No recovery details</span>
-                        )}
-                      </div>
+                      <span className="font-mono text-[0.85rem] font-bold px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'white', color: 'var(--text-main)', border: '1px solid var(--border)', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                        {row['Webmail Username'] || '-'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="font-mono text-[0.85rem] font-bold px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' }}>
+                        {row['Webamail Password'] || row['Webmail Password'] || '-'}
+                      </span>
                     </td>
                   </tr>
                 ))
@@ -252,7 +235,7 @@ export default function PrimeDirectoryPage() {
               <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
                 {Math.min(startIndex + itemsPerPage, filteredData.length)}
               </span>{' '}
-              of <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{filteredData.length}</span> accounts
+              of <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{filteredData.length}</span> entries
             </div>
 
             <div className="flex items-center gap-2">

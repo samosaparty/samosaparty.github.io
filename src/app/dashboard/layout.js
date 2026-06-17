@@ -121,6 +121,9 @@ export default function DashboardLayout({ children }) {
                 <Link href="/dashboard/it-management/assets" className={`sub-nav-item ${pathname === '/dashboard/it-management/assets' ? 'active' : ''}`}>
                   Assets
                 </Link>
+                <Link href="/dashboard/it-management/prime-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/prime-details' ? 'active' : ''}`}>
+                  Prime Details
+                </Link>
                 <Link href="/dashboard/it-management/internet-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/internet-details' ? 'active' : ''}`}>
                   Internet Details
                 </Link>
@@ -133,9 +136,7 @@ export default function DashboardLayout({ children }) {
                 <Link href="/dashboard/it-management/anydesk-id" className={`sub-nav-item ${pathname === '/dashboard/it-management/anydesk-id' ? 'active' : ''}`}>
                   Anydesk ID
                 </Link>
-                <Link href="/dashboard/it-management/prime" className={`sub-nav-item ${pathname === '/dashboard/it-management/prime' ? 'active' : ''}`}>
-                  Prime
-                </Link>
+
               </div>
             )}
           </div>
