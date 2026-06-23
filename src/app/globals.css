@@ -655,6 +655,7 @@ tbody tr:hover { background-color: #e0f2fe; }
     left: 0;
     transform: translateX(-100%);
     box-shadow: none;
+    z-index: 50;
   }
   
   .sidebar.open {
@@ -687,7 +688,28 @@ tbody tr:hover { background-color: #e0f2fe; }
   }
   
   .page-content {
-    padding: 0; /* Remove heavy desktop padding on mobile, let components handle it */
+    padding: 1rem; /* Adjust padding for mobile instead of 0 */
+  }
+
+  /* Make user info in header compact */
+  .header-user .user-role-badge,
+  .header-user .user-name-text {
+    display: none;
+  }
+  
+  .header-user > div > div:first-child {
+    display: none;
+  }
+  
+  /* Widget grid to single column on mobile */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Make table actions stack or scroll properly */
+  .controls-bar {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
