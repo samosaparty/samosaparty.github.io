@@ -143,6 +143,9 @@ export default function DashboardLayout({ children }) {
                 <Link href="/dashboard/it-management/prime-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/prime-details' ? 'active' : ''}`}>
                   Prime Details
                 </Link>
+                <Link href="/dashboard/it-management/edc-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/edc-details' ? 'active' : ''}`}>
+                  EDC Details
+                </Link>
                 <Link href="/dashboard/it-management/internet-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/internet-details' ? 'active' : ''}`}>
                   Internet Details
                 </Link>
