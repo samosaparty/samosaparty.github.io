@@ -149,6 +149,9 @@ export default function DashboardLayout({ children }) {
                 <Link href="/dashboard/it-management/internet-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/internet-details' ? 'active' : ''}`}>
                   Internet Details
                 </Link>
+                <Link href="/dashboard/it-management/blr-internet" className={`sub-nav-item ${pathname === '/dashboard/it-management/blr-internet' ? 'active' : ''}`}>
+                  BLR Internet
+                </Link>
                 <Link href="/dashboard/it-management/wifi-password" className={`sub-nav-item ${pathname === '/dashboard/it-management/wifi-password' ? 'active' : ''}`}>
                   Wifi-Password
                 </Link>
