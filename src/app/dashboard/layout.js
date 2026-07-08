@@ -140,26 +140,23 @@ export default function DashboardLayout({ children }) {
                 <Link href="/dashboard/it-management/assets" className={`sub-nav-item ${pathname === '/dashboard/it-management/assets' ? 'active' : ''}`}>
                   Assets
                 </Link>
+                <Link href="/dashboard/it-management/anydesk-id" className={`sub-nav-item ${pathname === '/dashboard/it-management/anydesk-id' ? 'active' : ''}`}>
+                  Anydesk ID
+                </Link>
                 <Link href="/dashboard/it-management/prime-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/prime-details' ? 'active' : ''}`}>
                   Prime Details
                 </Link>
-                <Link href="/dashboard/it-management/edc-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/edc-details' ? 'active' : ''}`}>
-                  EDC Details
-                </Link>
                 <Link href="/dashboard/it-management/internet-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/internet-details' ? 'active' : ''}`}>
-                  Internet Details
-                </Link>
-                <Link href="/dashboard/it-management/blr-internet" className={`sub-nav-item ${pathname === '/dashboard/it-management/blr-internet' ? 'active' : ''}`}>
-                  BLR Internet
-                </Link>
-                <Link href="/dashboard/it-management/wifi-password" className={`sub-nav-item ${pathname === '/dashboard/it-management/wifi-password' ? 'active' : ''}`}>
-                  Wifi-Password
+                  Internet / Pass Details
                 </Link>
                 <Link href="/dashboard/it-management/camera-password" className={`sub-nav-item ${pathname === '/dashboard/it-management/camera-password' ? 'active' : ''}`}>
                   Camera-Password
                 </Link>
-                <Link href="/dashboard/it-management/anydesk-id" className={`sub-nav-item ${pathname === '/dashboard/it-management/anydesk-id' ? 'active' : ''}`}>
-                  Anydesk ID
+                <Link href="/dashboard/it-management/edc-details" className={`sub-nav-item ${pathname === '/dashboard/it-management/edc-details' ? 'active' : ''}`}>
+                  EDC Details
+                </Link>
+                <Link href="/dashboard/it-management/blr-internet" className={`sub-nav-item ${pathname === '/dashboard/it-management/blr-internet' ? 'active' : ''}`}>
+                  BLR Internet
                 </Link>
                 <Link href="/dashboard/it-management/corporate-laptop" className={`sub-nav-item ${pathname === '/dashboard/it-management/corporate-laptop' ? 'active' : ''}`}>
                   Corporate Laptop
