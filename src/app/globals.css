@@ -168,7 +168,8 @@ a {
 /* Admin Dashboard Layout */
 .admin-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -191,11 +192,14 @@ a {
   font-weight: 700;
   font-size: 1.25rem;
   color: white;
+  flex-shrink: 0;
 }
 
 .sidebar-nav {
   padding: 1rem 0;
   flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .nav-item {

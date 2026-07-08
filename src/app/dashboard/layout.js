@@ -86,7 +86,7 @@ export default function DashboardLayout({ children }) {
             Samosa Party
           </a>
         </div>
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav custom-scrollbar">
           <Link href="/dashboard" className={`nav-item ${pathname === '/dashboard' ? 'active' : ''}`}>
             <Home size={18} />
             <span>Dashboard</span>
@@ -161,6 +161,15 @@ export default function DashboardLayout({ children }) {
                 <Link href="/dashboard/it-management/anydesk-id" className={`sub-nav-item ${pathname === '/dashboard/it-management/anydesk-id' ? 'active' : ''}`}>
                   Anydesk ID
                 </Link>
+                <Link href="/dashboard/it-management/corporate-laptop" className={`sub-nav-item ${pathname === '/dashboard/it-management/corporate-laptop' ? 'active' : ''}`}>
+                  Corporate Laptop
+                </Link>
+                <Link href="/dashboard/it-management/outlet-laptop" className={`sub-nav-item ${pathname === '/dashboard/it-management/outlet-laptop' ? 'active' : ''}`}>
+                  Outlet Laptop
+                </Link>
+                <Link href="/dashboard/it-management/tech-support" className={`sub-nav-item ${pathname === '/dashboard/it-management/tech-support' ? 'active' : ''}`}>
+                  Tech Support
+                </Link>
 
               </div>
             )}
@@ -171,6 +180,10 @@ export default function DashboardLayout({ children }) {
               <span>Manage Users</span>
             </Link>
           )}
+          <Link href="/dashboard/analyst-english" className={`nav-item ${pathname.includes('/analyst-english') ? 'active' : ''}`}>
+            <BarChart3 size={18} />
+            <span>Analyst English</span>
+          </Link>
           <Link href="/dashboard/settings" className={`nav-item ${pathname.includes('/settings') ? 'active' : ''}`}>
             <Settings size={18} />
             <span>Settings</span>
