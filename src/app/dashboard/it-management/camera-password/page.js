@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Camera, Search, AlertCircle, Download, Shield } from 'lucide-react';
+import { Camera, Search, AlertCircle, Download, RefreshCw, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function CameraPasswordPage() {
@@ -15,18 +15,18 @@ export default function CameraPasswordPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
     const csvUrl = 'https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/gviz/tq?tqx=out:csv&sheet=Camera-Password';
     
     fetch(csvUrl, { cache: 'no-store' })
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
-          header: false, // Using false because sheet has duplicate header names ('Password')
+          header: false,
           skipEmptyLines: true,
           complete: (results) => {
             if (results.data && results.data.length > 1) {
-              // Skip first row (headers) and map to objects
               const parsedData = results.data.slice(1).map(row => ({
                 storeName: row[0] || '',
                 camUser: row[1] || '',
@@ -48,9 +48,12 @@ export default function CameraPasswordPage() {
         console.error('Failed to fetch CSV:', err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
-  // Apply search
   const filteredData = useMemo(() => {
     return data.filter(item => {
       if (!searchTerm) return true;
@@ -63,15 +66,14 @@ export default function CameraPasswordPage() {
     });
   }, [data, searchTerm]);
 
-  // Reset page when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const paginatedData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleExportCSV = () => {
     const csv = Papa.unparse(filteredData);
@@ -83,239 +85,243 @@ export default function CameraPasswordPage() {
   };
 
   return (
-    <div className="max-w-[1950px] mx-auto p-4 md:p-8 lg:p-10 flex flex-col gap-8" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-color)' }}>
+    <div className="max-w-[1950px] mx-auto p-4 md:p-6 lg:p-8 xl:p-10 flex flex-col gap-5 md:gap-6">
       
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white p-8 rounded-2xl border" style={{ borderColor: 'var(--border)', boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.03)' }}>
-        <div>
-          <h1 className="text-2xl font-extrabold flex items-center gap-3 tracking-tight" style={{ color: 'var(--text-main)' }}>
-            <div className="p-2.5 rounded-xl" style={{ backgroundColor: 'var(--secondary)', color: 'var(--primary)' }}>
-              <Camera className="w-6 h-6" strokeWidth={2.5} />
+      <header style={{ paddingTop: '0.8rem', paddingBottom: '0.8rem' }} className="bg-white px-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
+        <h1 className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-2">
+          <Camera className="text-primary w-6 h-6" />
+          Camera Passwords Directory
+        </h1>
+        <p className="text-sm font-medium text-slate-500">CCTV access credentials and associated Anydesk details for all stores.</p>
+      </header>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[400px]">
+        <div style={{ paddingTop: '0.8rem', paddingBottom: '0.8rem', paddingLeft: '2%' }} className="pr-4 md:pr-8 flex flex-col sm:flex-row justify-start items-center gap-4 bg-white rounded-t-2xl">
+          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+            
+            <div className="relative group" style={{ width: '370px', maxWidth: '100%' }}>
+              <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none z-10" style={{ paddingLeft: '1.25rem' }}>
+                <Search className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+              </div>
+              <input 
+                type="text" 
+                placeholder="Search Store, Username or Anydesk ID..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ paddingLeft: '3rem', paddingTop: '0.65rem', paddingBottom: '0.65rem' }}
+                className="block w-full pr-4 text-sm font-medium text-slate-700 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white shadow-sm hover:border-slate-400"
+              />
             </div>
-            Camera Passwords Directory
-          </h1>
-          <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-muted)' }}>
-            CCTV access credentials and associated Anydesk details for all stores.
-          </p>
+            
+            <button 
+              onClick={() => setSearchTerm('')}
+              disabled={!searchTerm}
+              className="p-[11px] text-rose-500 bg-rose-50 hover:text-rose-600 hover:bg-rose-100 rounded-xl border border-rose-200 hover:border-rose-300 transition-all disabled:opacity-50 flex-shrink-0 shadow-sm"
+              title="Reset Filters"
+            >
+              <X style={{ width: '1.15rem', height: '1.15rem' }} />
+            </button>
+
+            <button 
+              onClick={loadData}
+              disabled={loading}
+              className="p-[11px] text-indigo-500 bg-indigo-50 hover:text-indigo-600 hover:bg-indigo-100 rounded-xl border border-indigo-200 hover:border-indigo-300 transition-all disabled:opacity-50 flex-shrink-0 shadow-sm"
+              title="Refresh Data"
+            >
+              <RefreshCw style={{ width: '1.15rem', height: '1.15rem' }} className={`${loading ? 'animate-spin' : ''}`} />
+            </button>
+
+            <button 
+              onClick={handleExportCSV}
+              className="p-[11px] text-emerald-500 bg-emerald-50 hover:text-emerald-600 hover:bg-emerald-100 rounded-xl border border-emerald-200 hover:border-emerald-300 transition-all flex-shrink-0 shadow-sm flex items-center gap-2"
+              title="Export CSV Data"
+            >
+              <Download style={{ width: '1.15rem', height: '1.15rem' }} />
+              <span className="hidden sm:inline text-sm font-medium">Export</span>
+            </button>
+          </div>
         </div>
         
-        <button 
-          onClick={handleExportCSV}
-          className="btn-primary flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-          style={{ width: 'auto', borderRadius: '10px', boxShadow: '0 4px 12px rgba(3, 105, 161, 0.2)' }}
-        >
-          <Download className="w-4 h-4" />
-          Export CSV Data
-        </button>
-      </div>
-
-      {/* Main Container */}
-      <div className="card flex flex-col flex-1" style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)', borderRadius: '16px', overflow: 'hidden' }}>
-        
-        {/* Controls Bar (Search) */}
-        <div className="p-5 border-b flex flex-row items-center gap-5 overflow-x-auto custom-scrollbar" style={{ borderColor: 'var(--border)', backgroundColor: '#ffffff', whiteSpace: 'nowrap' }}>
-          
-          {/* Search */}
-          <div style={{ position: 'relative', width: '350px', flexShrink: 0 }}>
-            <Search className="w-5 h-5" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-            <input 
-              type="text" 
-              placeholder="Search Store, Username or Anydesk ID..." 
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="form-input transition-all"
-              style={{ borderRadius: '10px', paddingLeft: '48px', paddingRight: '16px', paddingTop: '10px', paddingBottom: '10px', width: '100%', fontSize: '0.9rem', backgroundColor: '#f8fafc', border: '1px solid var(--border)' }}
-            />
-          </div>
-
-          <div style={{ width: '1px', height: '32px', backgroundColor: 'var(--border)', flexShrink: 0, opacity: 0.6 }}></div>
-          
-          {/* Active count badge */}
-          <div className="px-3 py-1.5 rounded-lg text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: 'white', boxShadow: '0 2px 8px rgba(255, 85, 0, 0.25)' }}>
-            {filteredData.length} Cameras Found
-          </div>
-        </div>
-        
-        {/* Table */}
-        <div className="p-8 md:p-10 relative min-h-[400px]">
-          <div className="table-responsive">
-          {loading ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
-              <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
-              <p className="text-slate-500 font-medium">Loading Camera directory...</p>
+        <div className="flex-1 overflow-x-auto flex flex-col justify-between">
+          {loading && data.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[300px] text-slate-500">
+              <RefreshCw className="w-8 h-8 animate-spin mb-3 text-primary" />
+              <p>Loading Camera directory...</p>
             </div>
-          ) : null}
-
-          <table>
-            <thead>
-              <tr>
-                <th>Store Name</th>
-                <th>Camera Credentials</th>
-                <th>Associated Anydesk</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!loading && filteredData.length === 0 ? (
-                <tr>
-                  <td colSpan="3" className="px-6 py-20 text-center">
-                    <div className="flex flex-col items-center justify-center" style={{ color: 'var(--text-muted)' }}>
-                      <AlertCircle className="w-14 h-14 mb-4" style={{ color: 'var(--border)', opacity: 0.8 }} />
-                      <p className="text-xl font-bold" style={{ color: 'var(--text-main)' }}>No records found</p>
-                      <p className="text-sm mt-2">Try adjusting your search term.</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                paginatedData.map((row, index) => (
-                  <tr key={index} className="group" >
-                    {/* Store Name */}
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-sm transition-all border border-slate-200">
-                          <Camera className="w-5 h-5 text-slate-500" />
-                        </div>
-                        <span className="font-extrabold text-[0.95rem]" style={{ color: 'var(--text-main)' }}>
-                          {row.storeName || 'Unknown Store'}
-                        </span>
+          ) : filteredData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[300px] text-slate-500">
+              <AlertCircle className="w-12 h-12 text-slate-300 mb-3" />
+              <p>No records found matching your criteria.</p>
+            </div>
+          ) : (
+            <>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white text-slate-700 text-[11px] font-bold uppercase tracking-wider border-y border-slate-200">
+                    <th className="py-5 px-6 w-16 text-center">#</th>
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        Store Name
                       </div>
-                    </td>
-
-                    {/* Camera Credentials */}
-                    <td>
-                      <div className="flex flex-col gap-2">
-                        {row.camUser || row.camPass ? (
-                          <>
-                            <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg inline-flex" style={{ border: '1px solid var(--border)' }}>
-                              <span className="text-[0.75rem] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>USER</span>
-                              <div className="w-[1px] h-3 bg-slate-200 mx-1"></div>
-                              <span className="text-sm font-extrabold" style={{ color: 'var(--primary)' }}>{row.camUser || '-'}</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg inline-flex" style={{ border: '1px solid var(--border)' }}>
-                              <span className="text-[0.75rem] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>PWD</span>
-                              <div className="w-[1px] h-3 bg-slate-200 mx-1"></div>
-                              <span className="text-sm font-mono font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' }}>
-                                {row.camPass || '-'}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <span className="text-[0.85rem] font-medium italic" style={{ color: 'var(--text-muted)' }}>No credentials</span>
-                        )}
+                    </th>
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        Camera Credentials
                       </div>
-                    </td>
-
-                    {/* Associated Anydesk */}
-                    <td>
-                      <div className="flex flex-col gap-2">
-                        {row.anydeskId || row.anydeskPass ? (
-                          <>
-                            {row.anydeskId && (
-                              <span className="font-mono text-[1.05rem] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-2 w-max" style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', letterSpacing: '0.5px' }}>
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                {row.anydeskId}
-                              </span>
-                            )}
-                            {row.anydeskPass && (
-                              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg inline-flex" style={{ border: '1px solid var(--border)' }}>
-                                <span className="text-[0.75rem] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>ANYDESK PWD</span>
+                    </th>
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        Associated Anydesk
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white text-sm">
+                  {paginatedData.map((row, index) => (
+                    <tr key={index} className="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-b-0">
+                      <td className="py-5 px-6 text-center text-slate-400 font-medium">{indexOfFirstItem + index + 1}</td>
+                      <td className="py-5 px-6 font-medium text-slate-700">
+                        {row.storeName || 'Unknown Store'}
+                      </td>
+                      <td className="py-5 px-6">
+                        <div className="flex flex-col gap-2">
+                          {row.camUser || row.camPass ? (
+                            <>
+                              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg inline-flex border border-slate-200">
+                                <span className="text-[0.75rem] font-bold uppercase tracking-wider text-slate-500">USER</span>
                                 <div className="w-[1px] h-3 bg-slate-200 mx-1"></div>
-                                <span className="text-sm font-mono font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #dbeafe' }}>
-                                  {row.anydeskPass}
+                                <span className="text-sm font-extrabold text-primary">{row.camUser || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg inline-flex border border-slate-200">
+                                <span className="text-[0.75rem] font-bold uppercase tracking-wider text-slate-500">PWD</span>
+                                <div className="w-[1px] h-3 bg-slate-200 mx-1"></div>
+                                <span className="text-sm font-mono font-bold px-1.5 py-0.5 rounded bg-orange-50 text-orange-600 border border-orange-100">
+                                  {row.camPass || '-'}
                                 </span>
                               </div>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-[0.85rem] font-medium italic" style={{ color: 'var(--text-muted)' }}>No Anydesk linked</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                            </>
+                          ) : (
+                            <span className="text-[0.85rem] font-medium italic text-slate-500">No credentials</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-5 px-6">
+                        <div className="flex flex-col gap-2">
+                          {row.anydeskId || row.anydeskPass ? (
+                            <>
+                              {row.anydeskId && (
+                                <span className="font-mono text-[1.05rem] font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-2 w-max bg-emerald-50 text-emerald-600 border border-emerald-200" style={{ letterSpacing: '0.5px' }}>
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                  {row.anydeskId}
+                                </span>
+                              )}
+                              {row.anydeskPass && (
+                                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg inline-flex border border-slate-200">
+                                  <span className="text-[0.75rem] font-bold uppercase tracking-wider text-slate-500">ANYDESK PWD</span>
+                                  <div className="w-[1px] h-3 bg-slate-200 mx-1"></div>
+                                  <span className="text-sm font-mono font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">
+                                    {row.anydeskPass}
+                                  </span>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-[0.85rem] font-medium italic text-slate-500">No Anydesk linked</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-white sm:px-6 mt-auto">
+                  <div className="flex flex-1 justify-between sm:hidden">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-slate-700">
+                        Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to <span className="font-medium">{Math.min(indexOfLastItem, filteredData.length)}</span> of{' '}
+                        <span className="font-medium">{filteredData.length}</span> results
+                      </p>
+                    </div>
+                    <div>
+                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="sr-only">Previous</span>
+                          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                        
+                        {/* Page Numbers */}
+                        {[...Array(totalPages)].map((_, i) => {
+                          const pageNumber = i + 1;
+                          if (
+                            pageNumber === 1 || 
+                            pageNumber === totalPages || 
+                            (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                          ) {
+                            return (
+                              <button
+                                key={pageNumber}
+                                onClick={() => setCurrentPage(pageNumber)}
+                                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${
+                                  currentPage === pageNumber
+                                    ? 'z-10 bg-primary text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                                    : 'text-slate-900 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          } else if (
+                            pageNumber === currentPage - 2 ||
+                            pageNumber === currentPage + 2
+                          ) {
+                            return (
+                              <span key={pageNumber} className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300 focus:outline-offset-0">
+                                ...
+                              </span>
+                            );
+                          }
+                          return null;
+                        })}
+                        
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="sr-only">Next</span>
+                          <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
               )}
-            </tbody>
-          </table>
-          </div>
+            </>
+          )}
         </div>
-
-        {/* Pagination Controls */}
-        {!loading && filteredData.length > 0 && (
-          <div className="p-5 border-t flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderColor: 'var(--border)', backgroundColor: '#f8fafc' }}>
-            <div className="text-[0.9rem] font-medium" style={{ color: 'var(--text-muted)' }}>
-              Showing <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{startIndex + 1}</span> to{' '}
-              <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
-                {Math.min(startIndex + itemsPerPage, filteredData.length)}
-              </span>{' '}
-              of <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{filteredData.length}</span> records
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
-                style={{ 
-                  backgroundColor: currentPage === 1 ? '#f1f5f9' : 'white', 
-                  color: currentPage === 1 ? '#94a3b8' : 'var(--text-main)',
-                  border: '1px solid var(--border)',
-                  boxShadow: currentPage === 1 ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Previous
-              </button>
-              
-              <div className="flex items-center gap-1 px-2">
-                {[...Array(totalPages)].map((_, i) => {
-                  const page = i + 1;
-                  // Show max 5 pages, with current page in middle when possible
-                  if (
-                    totalPages <= 5 || 
-                    page === 1 || 
-                    page === totalPages || 
-                    (page >= currentPage - 1 && page <= currentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-extrabold transition-all hover:scale-105"
-                        style={{
-                          backgroundColor: currentPage === page ? 'var(--primary)' : 'white',
-                          color: currentPage === page ? 'white' : 'var(--text-main)',
-                          border: currentPage === page ? 'none' : '1px solid var(--border)',
-                          boxShadow: currentPage === page ? '0 4px 10px rgba(3, 105, 161, 0.25)' : '0 1px 2px rgba(0,0,0,0.02)'
-                        }}
-                      >
-                        {page}
-                      </button>
-                    );
-                  }
-                  // Ellipsis
-                  if (page === currentPage - 2 || page === currentPage + 2) {
-                    return <span key={page} className="text-slate-400">...</span>;
-                  }
-                  return null;
-                })}
-              </div>
-
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
-                style={{ 
-                  backgroundColor: currentPage === totalPages ? '#f1f5f9' : 'white', 
-                  color: currentPage === totalPages ? '#94a3b8' : 'var(--text-main)',
-                  border: '1px solid var(--border)',
-                  boxShadow: currentPage === totalPages ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

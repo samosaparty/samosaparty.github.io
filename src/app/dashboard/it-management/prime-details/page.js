@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Shield, Search, Filter, AlertCircle, Download } from 'lucide-react';
+import { Shield, Search, Filter, AlertCircle, Download, ChevronLeft, ChevronRight, X, RefreshCw } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function PrimeDetailsPage() {
@@ -16,7 +16,8 @@ export default function PrimeDetailsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
     const csvUrl = 'https://docs.google.com/spreadsheets/d/1yKGYDJN4Chtk2vow07Kz5hPfirLdYIuqsxtsHXBk588/export?format=csv&gid=1537821073';
     
     fetch(csvUrl, { cache: 'no-store' })
@@ -39,10 +40,17 @@ export default function PrimeDetailsPage() {
         console.error('Failed to fetch CSV:', err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   // Extract unique values for filters
-  const uniqueCities = useMemo(() => ['All', ...new Set(data.map(item => item['City']).filter(Boolean))], [data]);
+  const uniqueCities = useMemo(() => {
+    const cities = [...new Set(data.map(item => item['City']?.trim()).filter(Boolean))].sort();
+    return ['All', ...cities];
+  }, [data]);
 
   // Apply filters and search
   const filteredData = useMemo(() => {
@@ -52,7 +60,7 @@ export default function PrimeDetailsPage() {
         row['Webmail Username']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         row['LOGIN URL']?.toLowerCase().includes(searchTerm.toLowerCase());
         
-      const matchCity = filterCity === 'All' || row['City'] === filterCity;
+      const matchCity = filterCity === 'All' || row['City']?.trim() === filterCity;
 
       return matchSearch && matchCity;
     });
@@ -78,233 +86,241 @@ export default function PrimeDetailsPage() {
   };
 
   return (
-    <div className="max-w-[1950px] mx-auto p-4 md:p-8 lg:p-10 flex flex-col gap-8" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-color)' }}>
-      
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white p-8 rounded-2xl border" style={{ borderColor: 'var(--border)', boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.03)' }}>
-        <div>
-          <h1 className="text-2xl font-extrabold flex items-center gap-3 tracking-tight" style={{ color: 'var(--text-main)' }}>
-            <div className="p-2.5 rounded-xl" style={{ backgroundColor: 'var(--secondary)', color: 'var(--primary)' }}>
-              <Shield className="w-6 h-6" strokeWidth={2.5} />
-            </div>
-            Prime Details
-          </h1>
-          <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-muted)' }}>
-            Manage Prime credentials and details across all outlets.
-          </p>
-        </div>
-        
-        <button 
-          onClick={handleExportCSV}
-          className="btn-primary flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-          style={{ width: 'auto', borderRadius: '10px', boxShadow: '0 4px 12px rgba(3, 105, 161, 0.2)' }}
-        >
-          <Download className="w-4 h-4" />
-          Export CSV Data
-        </button>
-      </div>
+    <div className="max-w-[1950px] mx-auto p-4 md:p-6 lg:p-8 xl:p-10 flex flex-col gap-5 md:gap-6">
+      <header style={{ paddingTop: '0.8rem', paddingBottom: '0.8rem' }} className="bg-white px-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
+        <h1 className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-2">
+          <Shield className="text-primary w-6 h-6" />
+          Prime Details
+        </h1>
+        <p className="text-sm font-medium text-slate-500">Manage Prime credentials and details across all outlets.</p>
+      </header>
 
-      {/* Main Table Container */}
-      <div className="card flex flex-col flex-1" style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)', borderRadius: '16px', overflow: 'hidden' }}>
-        
-        {/* Controls Bar (Search & Filters) */}
-        <div className="p-5 border-b flex flex-row items-center gap-5 overflow-x-auto custom-scrollbar" style={{ borderColor: 'var(--border)', backgroundColor: '#ffffff', whiteSpace: 'nowrap' }}>
-          
-          {/* Search */}
-          <div style={{ position: 'relative', width: '300px', flexShrink: 0 }}>
-            <Search className="w-5 h-5" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-            <input 
-              type="text" 
-              placeholder="Search Outlet, Username..." 
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="form-input transition-all"
-              style={{ borderRadius: '10px', paddingLeft: '48px', paddingRight: '16px', paddingTop: '10px', paddingBottom: '10px', width: '100%', fontSize: '0.9rem', backgroundColor: '#f8fafc', border: '1px solid var(--border)' }}
-            />
-          </div>
-
-          {/* Filters Divider */}
-          <div style={{ width: '1px', height: '32px', backgroundColor: 'var(--border)', flexShrink: 0, opacity: 0.6 }}></div>
-
-          {/* Filters */}
-          <div className="flex flex-row items-center gap-4 flex-nowrap" style={{ flexShrink: 0 }}>
-            <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>
-              <Filter className="w-4 h-4" />
-              Filters:
-            </div>
-            
-            <div style={{ position: 'relative', minWidth: '150px' }}>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[400px]">
+        <div style={{ paddingTop: '0.8rem', paddingBottom: '0.8rem', paddingLeft: '2%' }} className="pr-4 md:pr-8 flex flex-col sm:flex-row justify-start items-center gap-4 bg-white rounded-t-2xl">
+          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+            <div className="relative group" style={{ width: '250px', maxWidth: '100%' }}>
+              <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none z-10" style={{ paddingLeft: '1.25rem' }}>
+                <Filter className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+              </div>
               <select 
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}
-                className="form-input appearance-none cursor-pointer transition-colors hover:bg-slate-50"
-                style={{ borderRadius: '10px', padding: '10px 36px 10px 16px', width: '100%', fontSize: '0.9rem', fontWeight: 600, backgroundColor: 'white', border: '1px solid var(--border)' }}
+                style={{ paddingLeft: '3rem', paddingTop: '0.65rem', paddingBottom: '0.65rem' }}
+                className="block w-full pr-10 text-sm font-medium text-slate-700 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none bg-white shadow-sm hover:border-slate-400 cursor-pointer relative z-0"
               >
                 {uniqueCities.map(city => (
                   <option key={city} value={city}>{city === 'All' ? 'All Cities' : city}</option>
                 ))}
               </select>
-              <div className="pointer-events-none" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                ▼
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center z-10" style={{ paddingRight: '1.25rem' }}>
+                <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </div>
             </div>
             
-            {/* Active count badge */}
-            <div className="ml-2 px-3 py-1.5 rounded-lg text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: 'white', boxShadow: '0 2px 8px rgba(255, 85, 0, 0.25)' }}>
-              {filteredData.length} Results
+            <div className="relative group" style={{ width: '370px', maxWidth: '100%' }}>
+              <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none z-10" style={{ paddingLeft: '1.25rem' }}>
+                <Search className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+              </div>
+              <input 
+                type="text" 
+                placeholder="Search Outlet, Username..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ paddingLeft: '3rem', paddingTop: '0.65rem', paddingBottom: '0.65rem' }}
+                className="block w-full pr-4 text-sm font-medium text-slate-700 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white shadow-sm hover:border-slate-400"
+              />
             </div>
+            
+            <button 
+              onClick={() => {
+                setSearchTerm('');
+                setFilterCity('All');
+              }}
+              disabled={!searchTerm && filterCity === 'All'}
+              className="p-[11px] text-rose-500 bg-rose-50 hover:text-rose-600 hover:bg-rose-100 rounded-xl border border-rose-200 hover:border-rose-300 transition-all disabled:opacity-50 flex-shrink-0 shadow-sm"
+              title="Reset Filters"
+            >
+              <X style={{ width: '1.15rem', height: '1.15rem' }} />
+            </button>
+
+            <button 
+              onClick={loadData}
+              disabled={loading}
+              className="p-[11px] text-indigo-500 bg-indigo-50 hover:text-indigo-600 hover:bg-indigo-100 rounded-xl border border-indigo-200 hover:border-indigo-300 transition-all disabled:opacity-50 flex-shrink-0 shadow-sm"
+              title="Refresh Data"
+            >
+              <RefreshCw style={{ width: '1.15rem', height: '1.15rem' }} className={`${loading ? 'animate-spin' : ''}`} />
+            </button>
+            
+            <button 
+              onClick={handleExportCSV}
+              className="p-[11px] text-emerald-500 bg-emerald-50 hover:text-emerald-600 hover:bg-emerald-100 rounded-xl border border-emerald-200 hover:border-emerald-300 transition-all flex-shrink-0 shadow-sm"
+              title="Export CSV Data"
+            >
+              <Download style={{ width: '1.15rem', height: '1.15rem' }} />
+            </button>
           </div>
         </div>
         
-        {/* Table */}
-        <div className="p-8 md:p-10 relative min-h-[400px]">
-          <div className="table-responsive">
-          {loading ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 backdrop-blur-sm">
-              <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-              <p className="text-slate-500 font-medium">Syncing prime details...</p>
+        <div className="flex-1 overflow-x-auto flex flex-col justify-between">
+          {loading && data.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[300px] text-slate-500">
+              <RefreshCw className="w-8 h-8 animate-spin mb-3 text-primary" />
+              <p>Loading prime details...</p>
             </div>
-          ) : null}
-
-          <table>
-            <thead>
-              <tr>
-                <th>City</th>
-                <th>Outlet Name</th>
-                <th>Login URL</th>
-                <th>Webmail Username</th>
-                <th>Webmail Password</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!loading && filteredData.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-20 text-center">
-                    <div className="flex flex-col items-center justify-center" style={{ color: 'var(--text-muted)' }}>
-                      <AlertCircle className="w-14 h-14 mb-4" style={{ color: 'var(--border)', opacity: 0.8 }} />
-                      <p className="text-xl font-bold" style={{ color: 'var(--text-main)' }}>No details found</p>
-                      <p className="text-sm mt-2">Try adjusting your filters or search term.</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                paginatedData.map((row, index) => (
-                  <tr key={index} className="group">
-                    <td>
-                      <span className="font-bold text-[0.9rem]" style={{ color: 'var(--text-main)' }}>{row['City'] || '-'}</span>
-                    </td>
-                    <td>
-                      <span className="font-extrabold text-[0.95rem]" style={{ color: 'var(--text-main)' }}>
-                        {row['Outlet_Name'] || 'Unknown'}
-                      </span>
-                    </td>
-                    <td>
-                      <a 
-                        href={row['LOGIN URL']} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline text-[0.9rem]"
-                        style={{ wordBreak: 'break-all' }}
-                      >
-                        {row['LOGIN URL'] || '-'}
-                      </a>
-                    </td>
-                    <td>
-                      <span className="font-mono text-[0.85rem] font-bold px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'white', color: 'var(--text-main)', border: '1px solid var(--border)', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-                        {row['Webmail Username'] || '-'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="font-mono text-[0.85rem] font-bold px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' }}>
-                        {row['Webamail Password'] || row['Webmail Password'] || '-'}
-                      </span>
-                    </td>
+          ) : filteredData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[300px] text-slate-500">
+              <AlertCircle className="w-12 h-12 text-slate-300 mb-3" />
+              <p>No details found matching your criteria.</p>
+            </div>
+          ) : (
+            <>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white text-slate-700 text-[11px] font-bold uppercase tracking-wider border-y border-slate-200">
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        City
+                        <svg className="w-3 h-3 text-slate-300 group-hover:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
+                      </div>
+                    </th>
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        Outlet Name
+                        <svg className="w-3 h-3 text-slate-300 group-hover:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
+                      </div>
+                    </th>
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        Login URL
+                        <svg className="w-3 h-3 text-slate-300 group-hover:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
+                      </div>
+                    </th>
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        Webmail Username
+                        <svg className="w-3 h-3 text-slate-300 group-hover:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
+                      </div>
+                    </th>
+                    <th className="py-5 px-6 cursor-pointer hover:bg-slate-50 group">
+                      <div className="flex items-center gap-2">
+                        Webmail Password
+                        <svg className="w-3 h-3 text-slate-300 group-hover:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
+                      </div>
+                    </th>
                   </tr>
-                ))
+                </thead>
+                <tbody className="bg-white text-sm">
+                  {paginatedData.map((row, index) => (
+                    <tr key={index} className="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-b-0">
+                      <td className="py-5 px-6 font-medium text-slate-700">{row['City'] || '-'}</td>
+                      <td className="py-5 px-6 font-medium text-slate-700">{row['Outlet_Name'] || 'Unknown'}</td>
+                      <td className="py-5 px-6 text-slate-600">
+                        {row['LOGIN URL'] ? (
+                          <a 
+                            href={row['LOGIN URL']} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-600 hover:underline transition-colors"
+                          >
+                            {row['LOGIN URL']}
+                          </a>
+                        ) : '-'}
+                      </td>
+                      <td className="py-5 px-6 text-slate-600">{row['Webmail Username'] || '-'}</td>
+                      <td className="py-5 px-6 text-slate-600">{row['Webamail Password'] || row['Webmail Password'] || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-white sm:px-6 mt-auto">
+                  <div className="flex flex-1 justify-between sm:hidden">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-slate-700">
+                        Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(startIndex + itemsPerPage, filteredData.length)}</span> of{' '}
+                        <span className="font-medium">{filteredData.length}</span> results
+                      </p>
+                    </div>
+                    <div>
+                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="sr-only">Previous</span>
+                          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                        
+                        {/* Page Numbers */}
+                        {[...Array(totalPages)].map((_, i) => {
+                          const pageNumber = i + 1;
+                          if (
+                            pageNumber === 1 || 
+                            pageNumber === totalPages || 
+                            (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                          ) {
+                            return (
+                              <button
+                                key={pageNumber}
+                                onClick={() => setCurrentPage(pageNumber)}
+                                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${
+                                  currentPage === pageNumber
+                                    ? 'z-10 bg-primary text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                                    : 'text-slate-900 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          } else if (
+                            pageNumber === currentPage - 2 ||
+                            pageNumber === currentPage + 2
+                          ) {
+                            return (
+                              <span key={pageNumber} className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300 focus:outline-offset-0">
+                                ...
+                              </span>
+                            );
+                          }
+                          return null;
+                        })}
+                        
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="sr-only">Next</span>
+                          <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
               )}
-            </tbody>
-          </table>
-          </div>
+            </>
+          )}
         </div>
-
-        {/* Pagination Controls */}
-        {!loading && filteredData.length > 0 && (
-          <div className="p-5 border-t flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderColor: 'var(--border)', backgroundColor: '#f8fafc' }}>
-            <div className="text-[0.9rem] font-medium" style={{ color: 'var(--text-muted)' }}>
-              Showing <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{startIndex + 1}</span> to{' '}
-              <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
-                {Math.min(startIndex + itemsPerPage, filteredData.length)}
-              </span>{' '}
-              of <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{filteredData.length}</span> entries
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
-                style={{ 
-                  backgroundColor: currentPage === 1 ? '#f1f5f9' : 'white', 
-                  color: currentPage === 1 ? '#94a3b8' : 'var(--text-main)',
-                  border: '1px solid var(--border)',
-                  boxShadow: currentPage === 1 ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Previous
-              </button>
-              
-              <div className="flex items-center gap-1 px-2">
-                {[...Array(totalPages)].map((_, i) => {
-                  const page = i + 1;
-                  // Show max 5 pages, with current page in middle when possible
-                  if (
-                    totalPages <= 5 || 
-                    page === 1 || 
-                    page === totalPages || 
-                    (page >= currentPage - 1 && page <= currentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-extrabold transition-all hover:scale-105"
-                        style={{
-                          backgroundColor: currentPage === page ? 'var(--primary)' : 'white',
-                          color: currentPage === page ? 'white' : 'var(--text-main)',
-                          border: currentPage === page ? 'none' : '1px solid var(--border)',
-                          boxShadow: currentPage === page ? '0 4px 10px rgba(3, 105, 161, 0.25)' : '0 1px 2px rgba(0,0,0,0.02)'
-                        }}
-                      >
-                        {page}
-                      </button>
-                    );
-                  }
-                  // Ellipsis
-                  if (page === currentPage - 2 || page === currentPage + 2) {
-                    return <span key={page} className="text-slate-400">...</span>;
-                  }
-                  return null;
-                })}
-              </div>
-
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
-                style={{ 
-                  backgroundColor: currentPage === totalPages ? '#f1f5f9' : 'white', 
-                  color: currentPage === totalPages ? '#94a3b8' : 'var(--text-main)',
-                  border: '1px solid var(--border)',
-                  boxShadow: currentPage === totalPages ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
