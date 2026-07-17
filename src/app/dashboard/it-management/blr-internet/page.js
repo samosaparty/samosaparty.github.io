@@ -351,90 +351,94 @@ export default function BlrInternetPage() {
                   </tbody>
                 </table>
 
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-white sm:px-6 mt-auto">
-                    <div className="flex flex-1 justify-between sm:hidden">
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
+                                            {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div style={{ marginTop: '1%' }} className="flex items-center justify-between px-4 py-4 bg-white sm:px-6 mt-auto">
+                  <div className="flex flex-1 justify-between sm:hidden">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      style={{ color: 'var(--primary)' }}
+                      className="relative inline-flex items-center justify-center rounded-md px-4 h-10 text-sm font-medium bg-white ring-1 ring-inset ring-slate-200 hover:bg-slate-50 hover:z-10 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      style={{ color: 'var(--primary)' }}
+                      className="relative ml-3 inline-flex items-center justify-center rounded-md px-4 h-10 text-sm font-medium bg-white ring-1 ring-inset ring-slate-200 hover:bg-slate-50 hover:z-10 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-slate-600">
+                        Showing <span className="font-semibold text-slate-800">{indexOfFirstItem + 1}</span> to <span className="font-semibold text-slate-800">{Math.min(indexOfLastItem, filteredData.length)}</span> of{' '}
+                        <span className="font-semibold text-slate-800">{filteredData.length}</span> results
+                      </p>
                     </div>
-                    <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm text-slate-700">
-                          Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to <span className="font-medium">{Math.min(indexOfLastItem, filteredData.length)}</span> of{' '}
-                          <span className="font-medium">{filteredData.length}</span> results
-                        </p>
-                      </div>
-                      <div>
-                        <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                          <button
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <span className="sr-only">Previous</span>
-                            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-                          </button>
-                          
-                          {/* Page Numbers */}
-                          {[...Array(totalPages)].map((_, i) => {
-                            const pageNumber = i + 1;
-                            if (
-                              pageNumber === 1 || 
-                              pageNumber === totalPages || 
-                              (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
-                            ) {
-                              return (
-                                <button
-                                  key={pageNumber}
-                                  onClick={() => setCurrentPage(pageNumber)}
-                                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${
-                                    currentPage === pageNumber
-                                      ? 'z-10 bg-primary text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-                                      : 'text-slate-900 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
-                                  }`}
-                                >
-                                  {pageNumber}
-                                </button>
-                              );
-                            } else if (
-                              pageNumber === currentPage - 2 ||
-                              pageNumber === currentPage + 2
-                            ) {
-                              return (
-                                <span key={pageNumber} className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300 focus:outline-offset-0">
-                                  ...
-                                </span>
-                              );
-                            }
-                            return null;
-                          })}
-                          
-                          <button
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <span className="sr-only">Next</span>
-                            <ChevronRight className="h-5 w-5" aria-hidden="true" />
-                          </button>
-                        </nav>
-                      </div>
+                    <div>
+                      <nav className="isolate inline-flex -space-x-px rounded-lg shadow-sm" aria-label="Pagination">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          style={{ color: 'var(--primary)' }}
+                          className="relative inline-flex items-center justify-center rounded-l-lg px-4 h-10 text-sm font-medium bg-white ring-1 ring-inset ring-slate-200 hover:bg-slate-50 hover:z-10 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
+                        >
+                          Previous
+                        </button>
+                        
+                        {/* Page Numbers */}
+                        {[...Array(totalPages)].map((_, i) => {
+                          const pageNumber = i + 1;
+                          if (
+                            pageNumber === 1 || 
+                            pageNumber === totalPages || 
+                            (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
+                          ) {
+                            const isActive = currentPage === pageNumber;
+                            return (
+                              <button
+                                key={pageNumber}
+                                onClick={() => setCurrentPage(pageNumber)}
+                                style={isActive ? { backgroundColor: 'var(--primary)', color: 'white' } : { color: 'var(--primary)' }}
+                                className={`relative inline-flex items-center justify-center w-10 h-10 text-sm font-semibold focus:z-20 transition-all duration-200 ease-in-out ${
+                                  isActive
+                                    ? 'z-10 ring-1 ring-inset shadow-md'
+                                    : 'bg-white ring-1 ring-inset ring-slate-200 hover:bg-slate-50 hover:z-10'
+                                }`}
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          } else if (
+                            pageNumber === currentPage - 3 ||
+                            pageNumber === currentPage + 3
+                          ) {
+                            return (
+                              <span key={pageNumber} className="relative inline-flex items-center justify-center w-10 h-10 text-sm font-semibold text-slate-400 bg-white ring-1 ring-inset ring-slate-200">
+                                ...
+                              </span>
+                            );
+                          }
+                          return null;
+                        })}
+                        
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          style={{ color: 'var(--primary)' }}
+                          className="relative inline-flex items-center justify-center rounded-r-lg px-4 h-10 text-sm font-medium bg-white ring-1 ring-inset ring-slate-200 hover:bg-slate-50 hover:z-10 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
+                        >
+                          Next
+                        </button>
+                      </nav>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
               </>
             )}
           </div>

@@ -15,7 +15,7 @@ export function FilterPanel() {
 
       <div className="flex flex-1 flex-wrap items-center gap-2">
         {/* Existing selects... */}
-        <div className="min-w-[160px]">
+        <div className="flex-1 min-w-[130px] sm:flex-none sm:min-w-[160px]">
           <select 
             className="w-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-md p-1.5 outline-none focus:ring-2 ring-primary/20 hover:bg-slate-100 transition-all cursor-pointer"
             value={selectedCity || 'all'}
@@ -30,7 +30,7 @@ export function FilterPanel() {
           </select>
         </div>
 
-        <div className="min-w-[160px]">
+        <div className="flex-1 min-w-[130px] sm:flex-none sm:min-w-[160px]">
           <select 
             className="w-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-md p-1.5 outline-none focus:ring-2 ring-primary/20 hover:bg-slate-100 transition-all cursor-pointer"
             value={selectedCategory || 'all'}
@@ -43,7 +43,7 @@ export function FilterPanel() {
           </select>
         </div>
 
-        <div className="min-w-[160px]">
+        <div className="flex-1 min-w-[130px] sm:flex-none sm:min-w-[160px]">
           <select 
             className="w-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-md p-1.5 outline-none focus:ring-2 ring-primary/20 hover:bg-slate-100 transition-all cursor-pointer"
             value={selectedSeverity || 'all'}
@@ -57,7 +57,7 @@ export function FilterPanel() {
           </select>
         </div>
 
-        <div className="min-w-[160px]">
+        <div className="flex-1 min-w-[130px] sm:flex-none sm:min-w-[160px]">
           <select 
             className="w-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-md p-1.5 outline-none focus:ring-2 ring-primary/20 hover:bg-slate-100 transition-all cursor-pointer"
             value={selectedStatus || 'all'}

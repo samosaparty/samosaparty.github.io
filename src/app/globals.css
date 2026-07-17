@@ -692,7 +692,7 @@ tbody tr:hover { background-color: #e0f2fe; }
   }
   
   .page-content {
-    padding: 1rem; /* Adjust padding for mobile instead of 0 */
+    padding: 0; /* Let individual pages handle their own padding (e.g. p-4) to avoid double padding */
   }
 
   /* Make user info in header compact */
